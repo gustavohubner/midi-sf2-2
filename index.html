@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SF2 Workstation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="static/styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "spessasynth_lib": "./static/spessasynth_lib.js",
+      "spessasynth_core": "./static/spessasynth_core.js"
+    }
+  }
+  </script>
+</head>
+
+<body>
+  <script>
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+  </script>
+  <div class="wrapper">
+    <div class="grid-container">
+      <!-- SF2 options -->
+      <div class="grid-item" style="grid-column: 7 / span 4; grid-row: 1 / span 1">
+        <div class="panel ps-2 pe-2">
+          <div class="panel-row space-between">
+            <h1 class="text-3xl font-bold"><span class="text-red-500">SF2</span> Workstation</h1>
+            <div class="pt-1 flex gap-1">
+              <button id="toggle-piano-btn" class="btn btn-secondary py-1" style="width: 40px;" title="Toggle Piano">🎹</button>
+              <button id="settings-btn" class="btn btn-secondary py-1" style="width: 40px;" title="Settings">⚙</button>
+              <button class="btn btn-secondary py-1" style="width: 40px;" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save / load preset from memory -->
+      <div class="grid-item" style="grid-column: 1 / span 6; grid-row: 1 / span 2;">
+        <div class="panel">
+          <div class="grid-item-header horizontal-wrapper space-between pe-2">
+            <div>Memory Presets</div>
+          </div>
+          <div class="grid-item-body" style="display:flex;flex-direction:row;align-items:center;justify-content:center;">
+            <div class="horizontal-wrapper horizontal-wrapper-gap mt-5" style="width:100%;">
+              <button id="global-prev-preset"
+                class="p-2 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="grey" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m15 18-6-6 6-6"></path>
+                </svg>
+              </button>
+              <div style="flex:1;min-width:0;">
+                <select id="global-preset-select" class="preset-select"
+                  style="width:100%;box-sizing:border-box; background-color: rgb(78, 152, 173); color: rgb(31, 75, 144); border-color: rgb(31, 75, 144); border-width: 01px; font-family: monospace; font-weight: bolder; ">
+                </select>
+              </div>
+
+              <button id="global-next-preset"
+                class="p-2 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="grey" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m9 18 6-6-6-6"></path>
+                </svg>
+              </button>
+              <div style="width:1px;height:24px;background:#555;"></div>
+              <button id="global-save-btn" class="btn btn-secondary py-1 px-3">Save</button>
+              <button id="global-load-btn" class="btn btn-secondary py-1 px-3">Load</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- --------------------------------------------------------------------------- -->
+
+
+      <!-- Piano controls -->
+      <div class="grid-item" style="grid-column: 1 / span 6; grid-row: 3 / span 5;">
+        <div class="panel">
+          <div class="grid-item-header horizontal-wrapper space-between pe-2">
+            <div>
+              Layer 1: Piano
+            </div>
+
+
+            <div class="flex items-center gap-4">
+              <div class="flex items-center bg-gray-800 rounded border border-gray-900">
+                <button id="layer-1-octave-down" class="px-2 py-1 hover:bg-gray-700 text-xs text-gray-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-chevron-left ">
+                    <path d="m15 18-6-6 6-6"></path>
+                  </svg>
+                </button>
+                <span id="layer-1-octave-display" class="text-xs font-mono w-6 text-center text-gray-300">0</span>
+                <button id="layer-1-octave-up" class="px-2 py-1 hover:bg-gray-700 text-xs text-gray-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-chevron-right ">
+                    <path d="m9 18 6-6-6-6"></path>
+                  </svg>
+                </button>
+              </div>
+              <div class="flex items-center gap-2">
+                <button id="layer-1-active-btn"
+                  class="px-4 py-0.5 bg-green-600 text-white text-xs rounded border border-gray-900 hover:bg-gray-600">ON</button>
+                <span id="layer-1-active-led" class="w-3 h-3 rounded-full bg-green-500"></span>
+              </div>
+            </div>
+          </div>
+          <div class="grid-item-body">
+
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px;">
+              <div class="flex flex-col space-between">
+
+                <div>
+                  <label class="text-xs text-gray-400">SoundFont File</label>
+                  <input id="layer-1-sf-select" type="file" accept=".sf2,.sf3"
+                    class="text-xs text-gray-300 preset-select" style="width: 100%; padding:6px;" />
+                </div>
+
+
+                <div>
+                  <label class="text-xs text-gray-400">Preset</label>
+                  <div class="horizontal-wrapper horizontal-wrapper-gap m-0 p-0">
+                    <button id="layer-1-prev-preset"
+                      class="p-2 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="grey" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6"></path>
+                      </svg>
+                    </button>
+                    <select id="layer-1-preset-select" class="text-xs text-gray-300 preset-select" style="width: 100%;">
+                      <option>No presets loaded</option>
+                    </select>
+                    <button id="layer-1-next-preset"
+                      class="p-2 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="grey" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  <div class="flex gap-2 mt-2">
+                    <button id="layer-1-long-release"
+                      class="flex-1 py-2 text-xs font-bold rounded transition-colors bg-gray-700 text-gray-400 hover:bg-gray-600">Long
+                      Release</button>
+                    <button id="layer-1-no-sens"
+                      class="flex-1 py-2 text-xs font-bold rounded transition-colors bg-gray-700 text-gray-400 hover:bg-gray-600">No
+                      Sens</button>
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="subpanel">
+                <div class="grid-item-header grid-item-header-sub ">Equalizer</div>
+                <div class="grid-item-body space-between flex flex-col h-100">
+                  <div>
+                    <div class="horizontal-wrapper fader-div">
+                      <label class="text-xs text-gray-500">Treble</label>
+                      <input id="layer-1-eq-treble" type="range" min="0" max="110" value="55"
+                        class="fader-slider sm fader">
+                    </div>
+                    <div class="horizontal-wrapper fader-div">
+                      <label class="text-xs text-gray-500">Mid</label>
+                      <input id="layer-1-eq-mid" type="range" min="0" max="110" value="55"
+                        class="fader-slider sm fader">
+                    </div>
+                    <div class="horizontal-wrapper fader-div">
+                      <label class="text-xs text-gray-500">Bass</label>
+                      <input id="layer-1-eq-bass" type="range" min="0" max="110" value="55"
+                        class="fader-slider sm fader">
+                    </div>
+                  </div>
+
+
+
+
+                  <div class="border-t border-gray-800 mt-2"></div>
+                  <div class="mb-5">
+                    <div class="horizontal-wrapper fader-div">
+                      <span class="text-xs text-gray-500">Filter</span>
+                      <input id="layer-1-eq-filter" type="range" min="0" max="110" class="fader-slider sm" value="55">
+                    </div>
+                    <div class="text-xs text-gray-600 fader-div p-0 m-0">
+                      <div></div>
+                      <div class="flex space-between">
+                        <span>LP</span>
+                        <span>HP</span>
+                      </div>
+
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="subpanel">
+                <div class="grid-item-header grid-item-header-sub">Effects</div>
+                <div class="grid-item-body">
+                  <div class="horizontal-wrapper fader-div">
+                    <label class="text-xs text-gray-500">Reverb</label>
+                    <input id="layer-1-fx-reverb" type="range" min="0" max="127" value="0"
+                      class="fader-slider sm fader">
+                  </div>
+                  <div class="horizontal-wrapper fader-div">
+                    <label class="text-xs text-gray-500">Chorus</label>
+                    <input id="layer-1-fx-chorus" type="range" min="0" max="127" value="0"
+                      class="fader-slider sm fader">
+                  </div>
+                  <div class="border-t border-gray-800  mt-2"></div>
+                  <div class="text-xs text-gray-500 mt-1">Delay</div>
+                  <div style="padding: 0; margin: 0;">
+                    <div class="items-center fader-div-no-gap mt-1">
+                      <label class="text-[12px] text-gray-700">Mix</label>
+                      <input id="layer-1-delay-mix" type="range" min="0" max="127" value="0"
+                        class="fader-slider sm fader">
+                    </div>
+                    <div class="items-center fader-div-no-gap mt-1">
+                      <label class="text-[12px] text-gray-700 w-8">Time</label>
+                      <input id="layer-1-delay-time" type="range" min="0" max="127" value="0"
+                        class="fader-slider sm fader">
+                    </div>
+                    <div class="items-center fader-div-no-gap mt-1">
+                      <label class="text-[12px] text-gray-700">Fdbk</label>
+                      <input id="layer-1-delay-fdbk" type="range" min="0" max="127" value="0"
+                        class="fader-slider sm fader">
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Synth controls -->
+      <div class="grid-item" style="grid-column: 1 / span 6; grid-row: 8 / span 5;">
+        <div class="panel">
+          <div class="grid-item-header horizontal-wrapper space-between pe-2">
+            <div>
+              Layer 2: Synth
+            </div>
+
+
+            <div class="flex items-center gap-4">
+              <div class="flex items-center bg-gray-800 rounded border border-gray-900">
+                <button id="layer-2-octave-down" class="px-2 py-1 hover:bg-gray-700 text-xs text-gray-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-chevron-left ">
+                    <path d="m15 18-6-6 6-6"></path>
+                  </svg>
+                </button>
+                <span id="layer-2-octave-display" class="text-xs font-mono w-6 text-center text-gray-300">0</span>
+                <button id="layer-2-octave-up" class="px-2 py-1 hover:bg-gray-700 text-xs text-gray-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-chevron-right ">
+                    <path d="m9 18 6-6-6-6"></path>
+                  </svg>
+                </button>
+              </div>
+              <div class="flex items-center gap-2">
+                <button id="layer-2-active-btn"
+                  class="px-4 py-0.5 bg-green-600 text-white text-xs rounded border border-gray-900 hover:bg-gray-600">ON</button>
+                <span id="layer-2-active-led" class="w-3 h-3 rounded-full bg-green-500"></span>
+              </div>
+            </div>
+          </div>
+          <div class="grid-item-body">
+
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px;">
+              <div class="flex flex-col space-between">
+
+                <div>
+                  <label class="text-xs text-gray-400">SoundFont File</label>
+                  <input id="layer-2-sf-select" type="file" accept=".sf2,.sf3"
+                    class="text-xs text-gray-300 preset-select" style="width: 100%; padding:6px;" />
+                </div>
+                <div id="chord-display" style="display: none;"
+                  class="text-center px-3 py-1 bg-purple-900/50 border border-purple-500/30 rounded text-purple-300 font-mono text-sm font-bold animate-pulse">--</div>
+
+                <div>
+                  <label class="text-xs text-gray-400">Preset</label>
+                  <div class="horizontal-wrapper horizontal-wrapper-gap m-0 p-0">
+                    <button id="layer-2-prev-preset"
+                      class="p-2 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="grey" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6"></path>
+                      </svg>
+                    </button>
+                    <select id="layer-2-preset-select" class="text-xs text-gray-300 preset-select" style="width: 100%;">
+                      <option>No presets loaded</option>
+                    </select>
+                    <button id="layer-2-next-preset"
+                      class="p-2 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="grey" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  <div class="flex gap-2 mt-2">
+                    <button id="layer-2-long-release"
+                      class="flex-1 py-2 text-xs font-bold rounded transition-colors bg-gray-700 text-gray-400 hover:bg-gray-600">Long
+                      Release</button>
+                    <button id="layer-2-no-sens"
+                      class="flex-1 py-2 text-xs font-bold rounded transition-colors bg-gray-700 text-gray-400 hover:bg-gray-600">No
+                      Sens</button>
+                    <button id="layer-2-smart-pad"
+                      class="flex-1 py-2 text-xs font-bold rounded transition-colors bg-purple-600 text-white">Smart
+                      Pad</button>
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="subpanel">
+                <div class="grid-item-header grid-item-header-sub ">Equalizer</div>
+                <div class="grid-item-body space-between flex flex-col h-100">
+                  <div>
+                    <div class="horizontal-wrapper fader-div">
+                      <label class="text-xs text-gray-500">Treble</label>
+                      <input id="layer-2-eq-treble" type="range" min="0" max="110" value="55"
+                        class="fader-slider sm fader">
+                    </div>
+                    <div class="horizontal-wrapper fader-div">
+                      <label class="text-xs text-gray-500">Mid</label>
+                      <input id="layer-2-eq-mid" type="range" min="0" max="110" value="55"
+                        class="fader-slider sm fader">
+                    </div>
+                    <div class="horizontal-wrapper fader-div">
+                      <label class="text-xs text-gray-500">Bass</label>
+                      <input id="layer-2-eq-bass" type="range" min="0" max="110" value="55"
+                        class="fader-slider sm fader">
+                    </div>
+                  </div>
+
+
+
+
+                  <div class="border-t border-gray-800 mt-2"></div>
+                  <div class="mb-5">
+                    <div class="horizontal-wrapper fader-div">
+                      <span class="text-xs text-gray-500">Filter</span>
+                      <input id="layer-2-eq-filter" type="range" min="0" max="110" class="fader-slider sm" value="55">
+                    </div>
+                    <div class="text-xs text-gray-600 fader-div p-0 m-0">
+                      <div></div>
+                      <div class="flex space-between">
+                        <span>LP</span>
+                        <span>HP</span>
+                      </div>
+
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="subpanel">
+                <div class="grid-item-header grid-item-header-sub">Effects</div>
+                <div class="grid-item-body">
+                  <div class="horizontal-wrapper fader-div">
+                    <label class="text-xs text-gray-500">Reverb</label>
+                    <input id="layer-2-fx-reverb" type="range" min="0" max="127" value="0"
+                      class="fader-slider sm fader">
+                  </div>
+                  <div class="horizontal-wrapper fader-div">
+                    <label class="text-xs text-gray-500">Chorus</label>
+                    <input id="layer-2-fx-chorus" type="range" min="0" max="127" value="0"
+                      class="fader-slider sm fader">
+                  </div>
+                  <div class="border-t border-gray-800  mt-2"></div>
+                  <div class="text-xs text-gray-500 mt-1">Delay</div>
+                  <div style="padding: 0; margin: 0;">
+                    <div class="items-center fader-div-no-gap mt-1">
+                      <label class="text-[12px] text-gray-700">Mix</label>
+                      <input id="layer-2-delay-mix" type="range" min="0" max="127" value="0"
+                        class="fader-slider sm fader">
+                    </div>
+                    <div class="items-center fader-div-no-gap mt-1">
+                      <label class="text-[12px] text-gray-700 w-8">Time</label>
+                      <input id="layer-2-delay-time" type="range" min="0" max="127" value="0"
+                        class="fader-slider sm fader">
+                    </div>
+                    <div class="items-center fader-div-no-gap mt-1">
+                      <label class="text-[12px] text-gray-700">Fdbk</label>
+                      <input id="layer-2-delay-fdbk" type="range" min="0" max="127" value="0"
+                        class="fader-slider sm fader">
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div id="piano-panel" class="grid-item" style="grid-column: 1 / span 10; grid-row: 13 / span 4;">
+        <div class="panel">
+          <div class="grid-item-header">Virtual Piano</div>
+          <div class="grid-item-body p-0 m-0">
+
+            <!-- Virtual Piano Container -->
+            <div id="virtual-piano"
+              class="w-full bg-gray-900 border border-gray-700 relative flex justify-center overflow-hidden mb-4 rounded shadow-inner"
+              style="height: 140px;">
+              <!-- Keys generated by JS -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bass controls -->
+      <div class="grid-item" style="grid-column: 7 / span 4; grid-row: 5 / span 8;">
+        <div class="panel">
+          <div class="grid-item-header horizontal-wrapper space-between pe-2">
+            <div>
+              Layer 3: Bass
+            </div>
+
+
+            <div class="flex items-center gap-4">
+              <div class="flex items-center bg-gray-800 rounded border border-gray-900">
+                <button id="layer-3-octave-down" class="px-2 py-1 hover:bg-gray-700 text-xs text-gray-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-chevron-left ">
+                    <path d="m15 18-6-6 6-6"></path>
+                  </svg>
+                </button>
+                <span id="layer-3-octave-display" class="text-xs font-mono w-6 text-center text-gray-300">0</span>
+                <button id="layer-3-octave-up" class="px-2 py-1 hover:bg-gray-700 text-xs text-gray-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-chevron-right ">
+                    <path d="m9 18 6-6-6-6"></path>
+                  </svg>
+                </button>
+              </div>
+              <div class="flex items-center gap-2">
+                <button id="layer-3-active-btn"
+                  class="px-4 py-0.5 bg-green-600 text-white text-xs rounded border border-gray-900 hover:bg-gray-600">ON</button>
+                <span id="layer-3-active-led" class="w-3 h-3 rounded-full bg-green-500"></span>
+              </div>
+            </div>
+          </div>
+          <div class="grid-item-body h-100">
+            <div class="flex flex-col h-100 space-between">
+              <div>
+                <label class="text-xs text-gray-400">SoundFont File</label>
+                <input id="layer-3-sf-select" type="file" accept=".sf2,.sf3"
+                  class="text-xs text-gray-300 preset-select" style="width: 100%; padding:6px;" />
+              </div>
+              <div>
+                <div class="space-between flex">
+                  <label class="text-xs text-gray-400">Preset</label>
+                  <label class="text-xs text-gray-400" style="width: 64px;">Split</label>
+
+                </div>
+
+                <div class="horizontal-wrapper horizontal-wrapper-gap m-0 p-0">
+                  <button id="layer-3-prev-preset"
+                    class="p-2 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="grey" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m15 18-6-6 6-6"></path>
+                    </svg>
+                  </button>
+                  <select id="layer-3-preset-select" class="text-xs text-gray-300 preset-select" style="width: 100%;">
+                    <option>No presets loaded</option>
+                  </select>
+                  <button id="layer-3-next-preset"
+                    class="p-2 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="grey" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m9 18 6-6-6-6"></path>
+                    </svg>
+                  </button>
+                  <!-- split input for layer 3  -->
+                  <input id="bass-split-input" type="number" min="0" max="127" value="60"
+                    class="text-xs text-gray-300 preset-select w-16 text-center">
+                </div>
+                <div class="flex gap-2 mt-2">
+                  <button id="layer-3-long-release"
+                    class="flex-1 py-2 text-xs font-bold rounded transition-colors bg-gray-700 text-gray-400 hover:bg-gray-600">Long
+                    Release</button>
+                  <button id="layer-3-no-sens"
+                    class="flex-1 py-2 text-xs font-bold rounded transition-colors bg-gray-700 text-gray-400 hover:bg-gray-600">No
+                    Sens</button>
+
+                </div>
+
+              </div>
+
+
+              <div class="pt-2 pb-8" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="subpanel">
+                  <div class="grid-item-header grid-item-header-sub ">Equalizer</div>
+                  <div class="grid-item-body space-between flex flex-col h-100">
+                    <div>
+                      <div class="horizontal-wrapper fader-div">
+                        <label class="text-xs text-gray-500">Treble</label>
+                        <input id="layer-3-eq-treble" type="range" min="0" max="110" value="55"
+                          class="fader-slider sm fader">
+                      </div>
+                      <div class="horizontal-wrapper fader-div">
+                        <label class="text-xs text-gray-500">Mid</label>
+                        <input id="layer-3-eq-mid" type="range" min="0" max="110" value="55"
+                          class="fader-slider sm fader">
+                      </div>
+                      <div class="horizontal-wrapper fader-div">
+                        <label class="text-xs text-gray-500">Bass</label>
+                        <input id="layer-3-eq-bass" type="range" min="0" max="110" value="55"
+                          class="fader-slider sm fader">
+                      </div>
+                    </div>
+
+                    <div class="border-t border-gray-800 mt-2"></div>
+                    <div class="mb-5">
+                      <div class="horizontal-wrapper fader-div">
+                        <span class="text-xs text-gray-500">Filter</span>
+                        <input id="layer-3-eq-filter" type="range" min="0" max="110" class="fader-slider sm" value="55">
+                      </div>
+                      <div class="text-xs text-gray-600 fader-div p-0 m-0">
+                        <div></div>
+                        <div class="flex space-between">
+                          <span>LP</span>
+                          <span>HP</span>
+                        </div>
+
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div>
+                  <div class="subpanel">
+                    <div class="grid-item-header grid-item-header-sub">Effects</div>
+                    <div class="grid-item-body">
+                      <div class="horizontal-wrapper fader-div">
+                        <label class="text-xs text-gray-500">Reverb</label>
+                        <input id="layer-3-fx-reverb" type="range" min="0" max="127" value="0"
+                          class="fader-slider sm fader">
+                      </div>
+                      <div class="horizontal-wrapper fader-div">
+                        <label class="text-xs text-gray-500">Chorus</label>
+                        <input id="layer-3-fx-chorus" type="range" min="0" max="127" value="0"
+                          class="fader-slider sm fader">
+                      </div>
+                      <div class="border-t border-gray-800  mt-2"></div>
+                      <div class="text-xs text-gray-500 mt-1">Delay</div>
+                      <div style="padding: 0; margin: 0;">
+                        <div class="items-center fader-div-no-gap mt-1">
+                          <label class="text-[12px] text-gray-700">Mix</label>
+                          <input id="layer-3-delay-mix" type="range" min="0" max="127" value="0"
+                            class="fader-slider sm fader">
+                        </div>
+                        <div class="items-center fader-div-no-gap mt-1">
+                          <label class="text-[12px] text-gray-700 w-8">Time</label>
+                          <input id="layer-3-delay-time" type="range" min="0" max="127" value="0"
+                            class="fader-slider sm fader">
+                        </div>
+                        <div class="items-center fader-div-no-gap mt-1">
+                          <label class="text-[12px] text-gray-700">Fdbk</label>
+                          <input id="layer-3-delay-fdbk" type="range" min="0" max="127" value="0"
+                            class="fader-slider sm fader">
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+
+
+
+            </div>
+          </div>
+        </div>
+
+
+
+
+      </div>
+
+      <!-- --------------------------------------------------------------------------- -->
+
+      <!-- Main volume fader -->
+      <div class="grid-item" style="grid-column: 7 / span 4; grid-row: 2 / span 1;">
+        <div class="panel">
+          <div class="grid-item-body">
+            <div class="horizontal-wrapper mt-1.5 horizontal-wrapper-gap"
+              style="display: grid; grid-template-columns: 1fr 5fr 1fr;">
+
+              <span class="text-sm text-gray-400">MASTER</span>
+              <input id="global-master-vol" type="range" min="0" max="100" value="75" class="fader-slider fader">
+              <span id="global-master-disp" class="text-sm text-gray-400 text-center">75%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Piano / Synth fader -->
+      <div class="grid-item" style="grid-column: 7 / span 4; grid-row: 3 / span 1;">
+        <div class="panel">
+          <div class="grid-item-body">
+            <div class="horizontal-wrapper mt-1.5 horizontal-wrapper-gap"
+              style="display: grid; grid-template-columns: 1fr 5fr 1fr;">
+              <span class="text-sm text-gray-400">PIANO</span>
+              <input id="global-piano-synth-mix" type="range" min="0" max="110" value="55" class="fader-slider fader">
+              <span class="text-sm text-gray-400 text-center">SYNTH</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bass volume fader -->
+      <div class="grid-item" style="grid-column: 7 / span 4; grid-row: 4 / span 1;">
+        <div class="panel">
+          <div class="grid-item-body">
+            <div class="horizontal-wrapper mt-1.5 horizontal-wrapper-gap"
+              style="display: grid; grid-template-columns: 1fr 5fr 1fr;">
+              <span class="text-sm text-gray-400">BASS</span>
+              <input id="global-bass-vol" type="range" min="0" max="100" value="75" class="fader-slider fader">
+              <span id="global-bass-disp" class="text-sm text-gray-400 text-center">75%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+  </div>
+  </div>
+  <!-- Settings Modal -->
+  <div id="settings-modal"
+    class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
+      <button id="settings-close-btn"
+        class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
+      </button>
+      <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3" />
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+        Settings
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-300 mb-3">Long Release Time</h3>
+          <div class="flex items-center gap-2">
+            <input id="settings-lr" type="range" min="64" max="127" value="110" class="fader-slider flex-1">
+            <span id="settings-lr-disp" class="text-white font-mono w-12 text-right">110</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-2">Controls the CC 72 value used when Long Release is enabled.</p>
+          <h3 class="text-lg font-semibold text-gray-300 mb-3 mt-6">No Sens Velocity</h3>
+          <div class="flex items-center gap-2">
+            <input id="settings-nv" type="range" min="1" max="127" value="96" class="fader-slider flex-1">
+            <span id="settings-nv-disp" class="text-white font-mono w-12 text-right">96</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-2">Fixed velocity when "No Sens" is enabled.</p>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-300 mb-3">Max Polyphony</h3>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between text-sm text-gray-400 mb-1">
+                <span>Piano</span>
+                <span id="settings-piano-poly-disp">16 voices</span>
+              </div>
+              <input id="settings-piano-poly" type="range" min="1" max="200" value="16"
+                class="fader-slider w-full">
+            </div>
+            <div>
+              <div class="flex justify-between text-sm text-gray-400 mb-1">
+                <span>Synth</span>
+                <span id="settings-synth-poly-disp">16 voices</span>
+              </div>
+              <input id="settings-synth-poly" type="range" min="1" max="200" value="16"
+                class="fader-slider w-full">
+            </div>
+            <div>
+              <div class="flex justify-between text-sm text-gray-400 mb-1">
+                <span>Bass</span>
+                <span id="settings-bass-poly-disp">2 voices</span>
+              </div>
+              <input id="settings-bass-poly" type="range" min="1" max="200" value="2"
+                class="fader-slider w-full">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 border-t border-gray-700 pt-6">
+        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="7" height="9" x="3" y="3" rx="1" />
+            <rect width="7" height="5" x="14" y="3" rx="1" />
+            <rect width="7" height="9" x="14" y="12" rx="1" />
+            <rect width="7" height="5" x="3" y="16" rx="1" />
+          </svg>
+          Smart Pad Settings
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <label class="text-gray-300 font-semibold">Latch Mode</label>
+              <button id="settings-latch"
+                class="px-4 py-2 rounded font-bold text-sm transition-colors bg-gray-700 text-gray-400">DISABLED</button>
+            </div>
+            <p class="text-xs text-gray-500 mb-6">Keeps the chord playing indefinitely until a new chord is detected.
+            </p>
+            <h3 class="text-lg font-semibold text-gray-300 mb-3">History Size</h3>
+            <div class="flex items-center gap-2">
+              <input id="settings-history" type="range" min="3" max="24" value="4"
+                class="fader-slider flex-1">
+              <span id="settings-history-disp" class="text-white font-mono w-12 text-right">4</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">Number of past notes to consider for chord detection.</p>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-300 mb-3">Allowed Chord Types</h3>
+            <div id="settings-chord-grid"
+              class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto pr-2"></div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 border-t border-gray-700 pt-6">
+        <button id="settings-delete-preset" class="btn w-full"
+          style="background:#dc2626;color:white;font-weight:bold;padding:10px;border-radius:6px;cursor:pointer;">Delete Current Preset</button>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="static/script.js"> </script>
+</body>
+
+</html>
