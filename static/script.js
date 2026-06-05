@@ -1437,4 +1437,48 @@ document.addEventListener('DOMContentLoaded', () => {
             pianoBtn.style.opacity = pianoVisible ? '1' : '0.4';
         };
     }
+
+    // Auto-scale init
+    if (localStorage.getItem('sf2_scale_to_fit') === 'true') {
+        document.querySelector('.scale-toggle')?.classList.add('active');
+        setTimeout(scaleToFit, 100);
+    }
+});
+
+const SCALE_TOGGLE_KEY = 'sf2_scale_to_fit';
+
+function scaleToFit() {
+    if (localStorage.getItem(SCALE_TOGGLE_KEY) !== 'true') return;
+    const grid = document.querySelector('.grid-container');
+    const wrapper = document.querySelector('.wrapper');
+    if (!grid || !wrapper) return;
+    grid.style.transform = 'scale(1)';
+    const naturalW = grid.offsetWidth;
+    const naturalH = grid.offsetHeight;
+    if (naturalW === 0 || naturalH === 0) return;
+    const pad = 20;
+    const availW = window.innerWidth - pad * 2;
+    const availH = window.innerHeight - pad * 2;
+    const scale = Math.min(availW / naturalW, availH / naturalH);
+    grid.style.transform = 'scale(' + scale + ')';
+}
+
+function resetScale() {
+    const grid = document.querySelector('.grid-container');
+    if (grid) grid.style.transform = '';
+}
+
+document.addEventListener('click', function (e) {
+    const toggle = e.target.closest('.scale-toggle');
+    if (!toggle) return;
+    const enabled = localStorage.getItem(SCALE_TOGGLE_KEY) !== 'true';
+    localStorage.setItem(SCALE_TOGGLE_KEY, enabled);
+    toggle.classList.toggle('active', enabled);
+    if (enabled) { scaleToFit(); } else { resetScale(); }
+});
+
+let resizeTimer;
+window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(scaleToFit, 100);
 });
