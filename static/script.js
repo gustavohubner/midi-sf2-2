@@ -848,25 +848,25 @@ function wireControls() {
                 if (layer.synth) layer.synth.controllerChange(0, 93, v);
             });
         }
-        if (el.delayMix && layer.delay && layer.delay.input) {
+        if (el.delayMix) {
             el.delayMix.addEventListener('input', e => {
-                const v = parseInt(e.target.value);
+                const v = parseFloat(e.target.value);
                 layer.fx.delayMix = v;
-                layer.delay.input.gain.value = v / 100;
+                if (layer.delay?.input) layer.delay.input.gain.value = v / 100;
             });
         }
-        if (el.delayTime && layer.delay && layer.delay.delay) {
+        if (el.delayTime) {
             el.delayTime.addEventListener('input', e => {
-                const v = parseInt(e.target.value);
+                const v = parseFloat(e.target.value);
                 layer.fx.delayTime = v;
-                layer.delay.delay.delayTime.value = v;
+                if (layer.delay?.delay) layer.delay.delay.delayTime.value = v;
             });
         }
-        if (el.delayFdbk && layer.delay && layer.delay.feedback) {
+        if (el.delayFdbk) {
             el.delayFdbk.addEventListener('input', e => {
-                const v = parseInt(e.target.value);
+                const v = parseFloat(e.target.value);
                 layer.fx.delayFdbk = v;
-                layer.delay.feedback.gain.value = v;
+                if (layer.delay?.feedback) layer.delay.feedback.gain.value = v;
             });
         }
     });
@@ -1106,7 +1106,7 @@ function updateBassGain() {
 
 function applyPolyphony(name, value) {
     const s = state.layers[name].synth;
-    if (s) s.setSystemParameter("voiceCap", value);
+    if (s) s.setMasterParameter("voiceCap", value);
 }
 
 function updateHarmonyEngineConfig() {
